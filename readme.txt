@@ -1,4 +1,4 @@
-# AWS SAM Application - DynamoDB CRUD with Lambda and API Gateway
+# AWS SAM template - DynamoDB CRUD with Lambda and API Gateway
 
 This project demonstrates a simple serverless application built using AWS Lambda, API Gateway, and DynamoDB. It enables basic CRUD operations (Create, Read, Update, Delete) on a DynamoDB table.
 
