@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  employee-crud
+
+  Sample SAM Template for employee-crud
+
+Globals:
+  Function:
+    Timeout: 10
+
+Parameters:
+  TableName:
+    Type: String
+    Description: The name of the DynamoDB table
+
+Resources:
+  EmployeeTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableName
+      AttributeDefinitions:
+        - AttributeName: "empid"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "empid"
+          KeyType: "HASH"
+      BillingMode: PAY_PER_REQUEST
+
+  EmployeeCRUDFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: emp-crud/
+      Handler: main.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableName
+      Events:
+        GetAllItems:
+          Type: HttpApi
+          Properties:
+            Path: /items
+            Method: GET
+        GetAnItem:
+          Type: HttpApi
+          Properties:
+            Path: /items/{empid}
+            Method: GET
+        DeleteAnItem:
+          Type: HttpApi
+          Properties:
+            Path: /items/{empid}
+            Method: DELETE
+        AddItem:
+          Type: HttpApi
+          Properties:
+            Path: /items
+            Method: POST
+        UpdateItem:
+          Type: HttpApi
+          Properties:
+            Path: /items/{empid}
+            Method: PATCH
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+
+Outputs:
+  EmployeeCRUD:
+    Description: "API Gateway endpoint URL for Prod stage for Employee CRUD function"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/items/"
+  EmployeeCRUDFunctionArn:
+    Description: "Employee CRUD Lambda Function ARN"
+    Value: !GetAtt EmployeeCRUDFunction.Arn
+  EmployeeCRUDFunctionRoleArn:
+    Description: "Implicit IAM Role created for Employee CRUD function"
+    Value: !GetAtt EmployeeCRUDFunctionRole.Arn
